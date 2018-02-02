@@ -17,6 +17,7 @@ defmodule MobileMarkdownWeb.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
+    get "/credentials", CredentialsController, :show
   end
 
   # Other scopes may use custom stacks.
