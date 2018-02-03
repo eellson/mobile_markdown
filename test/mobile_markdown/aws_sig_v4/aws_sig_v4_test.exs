@@ -30,6 +30,7 @@ defmodule MobileMarkdown.AWSSigV4Test do
             ["eq", "$x-amz-credential", credential],
             ["eq", "$x-amz-date", "20180202T000000Z"],
             ["eq", "$x-amz-algorithm", "AWS4-HMAC-SHA256"],
+            ["eq", "$success_action_status", "201"],
             ["starts-with", "$key", ""]
           ]
         }

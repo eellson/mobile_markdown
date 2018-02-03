@@ -23,9 +23,9 @@ defmodule MobileMarkdownWeb.CredentialControllerTest do
                "x_amz_credential" => "AKIAIEUX27GZFAKECODE/20180202/us-east-1/s3/aws4_request",
                "x_amz_date" => "20180202T000000Z",
                "policy" =>
-                 "eyJleHBpcmF0aW9uIjoiMjAxOC0wMi0wMlQxOTowNzozM1oiLCJjb25kaXRpb25zIjpbWyJlcSIsIiRidWNrZXQiLCJteS1idWNrZXQiXSxbImVxIiwiJHgtYW16LWNyZWRlbnRpYWwiLCJBS0lBSUVVWDI3R1pGQUtFQ09ERS8yMDE4MDIwMi91cy1lYXN0LTEvczMvYXdzNF9yZXF1ZXN0Il0sWyJlcSIsIiR4LWFtei1kYXRlIiwiMjAxODAyMDJUMDAwMDAwWiJdLFsiZXEiLCIkeC1hbXotYWxnb3JpdGhtIiwiQVdTNC1ITUFDLVNIQTI1NiJdLFsic3RhcnRzLXdpdGgiLCIka2V5IiwiIl1dfQ==",
+                 "eyJleHBpcmF0aW9uIjoiMjAxOC0wMi0wMlQxOTowNzozM1oiLCJjb25kaXRpb25zIjpbWyJlcSIsIiRidWNrZXQiLCJteS1idWNrZXQiXSxbImVxIiwiJHgtYW16LWNyZWRlbnRpYWwiLCJBS0lBSUVVWDI3R1pGQUtFQ09ERS8yMDE4MDIwMi91cy1lYXN0LTEvczMvYXdzNF9yZXF1ZXN0Il0sWyJlcSIsIiR4LWFtei1kYXRlIiwiMjAxODAyMDJUMDAwMDAwWiJdLFsiZXEiLCIkeC1hbXotYWxnb3JpdGhtIiwiQVdTNC1ITUFDLVNIQTI1NiJdLFsiZXEiLCIkc3VjY2Vzc19hY3Rpb25fc3RhdHVzIiwiMjAxIl0sWyJzdGFydHMtd2l0aCIsIiRrZXkiLCIiXV19",
                "x_amz_signature" =>
-                 "25ec9ce795f9342cc6e55893fa7bb4c35e2b557ced23c304d1900293f8e7a61b"
+                 "e07b00566f5826a0f1e9058e2aff78446c5df9010774a4c75173844cdb286ff2"
              }
     end
   end

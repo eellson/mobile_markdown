@@ -44,6 +44,7 @@ defmodule MobileMarkdown.AWSSigV4 do
       ["eq", "$x-amz-credential", credential_string],
       ["eq", "$x-amz-date", S3.date_string(date)],
       ["eq", "$x-amz-algorithm", @aws_algorithm],
+      ["eq", "$success_action_status", "201"],
       ["starts-with", "$key", ""]
     ]
   end

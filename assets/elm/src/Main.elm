@@ -90,6 +90,7 @@ multiPartBody creds nf =
   , stringPart "x-amz-date" creds.x_amz_date
   , stringPart "x-amz-signature" creds.x_amz_signature
   , stringPart "policy" creds.policy
+  , stringPart "success_action_status" "201"
   , FileReader.filePart "file" nf
   ]
 
