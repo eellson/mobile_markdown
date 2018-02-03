@@ -2,9 +2,7 @@ defmodule MobileMarkdown.AWSSigV4.S3 do
   alias MobileMarkdown.AWSSigV4.Credential
 
   @aws_service "s3"
-  @aws_request "aws4_request"
   @aws_algorithm "AWS4-HMAC-SA256"
-  @sig_key_prefix "AWS4"
 
   def get_credential(
         host: host,
@@ -16,7 +14,7 @@ defmodule MobileMarkdown.AWSSigV4.S3 do
       ) do
     with credential_string <- Credential.credential_string(now, region, @aws_service, public_key),
          policy <- simple_policy(credential_string, bucket, now, expires_in),
-         signature <- signature(policy, now, region, private_key) do
+         signature <- Credential.signature(policy, now, region, @aws_service, private_key) do
       %Credential{
         host: host,
         policy: policy,
@@ -42,16 +40,6 @@ defmodule MobileMarkdown.AWSSigV4.S3 do
     |> policy(conditions)
   end
 
-  defp signature(string_to_encode, datetime, region, private_key) do
-    (@sig_key_prefix <> private_key)
-    |> sha256(Date.to_iso8601(datetime, :basic))
-    |> sha256(region)
-    |> sha256(@aws_service)
-    |> sha256(@aws_request)
-    |> sha256(string_to_encode)
-    |> Base.encode16(case: :lower)
-  end
-
   defp date_string(datetime) do
     datetime |> Date.to_iso8601(:basic) |> Kernel.<>("T000000Z")
   end
@@ -69,9 +57,5 @@ defmodule MobileMarkdown.AWSSigV4.S3 do
     %{"expiration" => expiry, "conditions" => conditions}
     |> Poison.encode!()
     |> Base.encode64()
-  end
-
-  def sha256(message, secret) do
-    :crypto.hmac(:sha256, message, secret)
   end
 end
