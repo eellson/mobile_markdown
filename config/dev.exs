@@ -56,3 +56,6 @@ config :mobile_markdown, MobileMarkdown.Repo,
   database: "mobile_markdown_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :mobile_markdown, :current_time_interface,
+  MobileMarkdown.CurrentTimeReal

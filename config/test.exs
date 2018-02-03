@@ -24,3 +24,6 @@ config :mobile_markdown, :s3_post_config,
   ttl: 30,
   public_key: "AKIAIEUX27GZFAKECODE",
   private_key: "M1jAHjgpZ6FnXCErcY8/ANOTHERFAKECODEEEEEEEE"
+
+config :mobile_markdown, :current_time_interface,
+  MobileMarkdown.CurrentTimeMock

@@ -20,7 +20,9 @@ defmodule MobileMarkdownWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", MobileMarkdownWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", MobileMarkdownWeb do
+    pipe_through :api
+
+    resources "/credentials", CredentialController, only: [:index]
+  end
 end
