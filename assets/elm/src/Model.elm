@@ -1,12 +1,12 @@
 module Model exposing (..)
 
-import FileReader exposing(NativeFile)
+-- import FileReader exposing(NativeFile)
 
 type Msg
   = UploadAsset
 
 type alias Model =
-  { fileToUpload : Maybe NativeFile
+  { fileToUpload : Maybe String
   }
 
 initialModel : Model
