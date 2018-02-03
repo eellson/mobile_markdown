@@ -4,7 +4,7 @@ defmodule MobileMarkdown.AWSSigV4Test do
   alias MobileMarkdown.AWSSigV4
 
   describe "credentials" do
-    alias MobileMarkdown.AWSSigV4.{Credential, S3}
+    alias MobileMarkdown.AWSSigV4.Credential
 
     setup do
       date_string = "2018-02-02 19:07:03.568092Z"
