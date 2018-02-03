@@ -13,6 +13,13 @@ defmodule MobileMarkdown.AWSSigV4 do
 
   alias MobileMarkdown.AWSSigV4.{Credential, S3}
 
+  @doc """
+  Returns %Credential{} populated for S3 POST request.
+
+  This function calls out to the general `Credential` and more specialized `S3`
+  module, in order to gather the data it needs, combining things when needed.
+  """
+  @spec get_credential(String.t(), DateTime.t(), atom(), atom(), Map.t()) :: struct()
   def get_credential(host, datetime, :s3, :simple, config) do
     [region: region, public_key: public_key, bucket: bucket, ttl: ttl, private_key: private_key] =
       config
