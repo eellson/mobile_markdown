@@ -17,3 +17,10 @@ config :mobile_markdown, MobileMarkdown.Repo,
   database: "mobile_markdown_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :mobile_markdown, :s3_post_config,
+  bucket: "my-bucket",
+  region: "us-east-1",
+  ttl: 30,
+  public_key: "AKIAIEUX27GZFAKECODE",
+  private_key: "M1jAHjgpZ6FnXCErcY8/ANOTHERFAKECODEEEEEEEE"
