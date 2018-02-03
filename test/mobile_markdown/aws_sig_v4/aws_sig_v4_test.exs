@@ -29,7 +29,7 @@ defmodule MobileMarkdown.AWSSigV4Test do
             ["eq", "$bucket", config[:bucket]],
             ["eq", "$x-amz-credential", credential],
             ["eq", "$x-amz-date", "20180202T000000Z"],
-            ["eq", "$x-amz-algorithm", "AWS4-HMAC-SA256"],
+            ["eq", "$x-amz-algorithm", "AWS4-HMAC-SHA256"],
             ["starts-with", "$key", ""]
           ]
         }
@@ -51,7 +51,7 @@ defmodule MobileMarkdown.AWSSigV4Test do
                  policy: encoded_policy,
                  x_amz_credential: credential,
                  x_amz_date: "20180202T000000Z",
-                 x_amz_algorithm: "AWS4-HMAC-SA256",
+                 x_amz_algorithm: "AWS4-HMAC-SHA256",
                  x_amz_signature: calculated_signature
                }
     end

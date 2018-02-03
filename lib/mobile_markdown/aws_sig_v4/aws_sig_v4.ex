@@ -9,7 +9,7 @@ defmodule MobileMarkdown.AWSSigV4 do
   browser-based POST to S3, with a basic pre-canned policy.
   """
 
-  @aws_algorithm "AWS4-HMAC-SA256"
+  @aws_algorithm "AWS4-HMAC-SHA256"
 
   alias MobileMarkdown.AWSSigV4.{Credential, S3}
 

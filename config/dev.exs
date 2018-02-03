@@ -59,3 +59,5 @@ config :mobile_markdown, MobileMarkdown.Repo,
 
 config :mobile_markdown, :current_time_interface,
   MobileMarkdown.CurrentTimeReal
+
+import_config "dev.secret.exs"

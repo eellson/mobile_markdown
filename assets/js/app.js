@@ -23,5 +23,5 @@ import "phoenix_html"
 const elmDiv = document.querySelector("#elm-target");
 
 if (elmDiv) {
-  Elm.Main.embed(elmDiv);
+  Elm.Main.embed(elmDiv, {upload_url: UPLOAD_URL});
 }

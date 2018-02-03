@@ -22,6 +22,9 @@
       </main>
 
     </div> <!-- /container -->
+    <script>
+      var UPLOAD_URL = "<%= Application.get_env(:mobile_markdown, :s3_post_config)[:endpoint] %>"
+    </script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>

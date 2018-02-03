@@ -19,13 +19,13 @@ defmodule MobileMarkdownWeb.CredentialControllerTest do
 
       assert json_response(conn, 200)["data"] == %{
                "host" => "http://localhost:4001",
-               "x_amz_algorithm" => "AWS4-HMAC-SA256",
+               "x_amz_algorithm" => "AWS4-HMAC-SHA256",
+               "x_amz_credential" => "AKIAIEUX27GZFAKECODE/20180202/us-east-1/s3/aws4_request",
                "x_amz_date" => "20180202T000000Z",
                "policy" =>
-                 "eyJleHBpcmF0aW9uIjoiMjAxOC0wMi0wMlQxOTowNzozM1oiLCJjb25kaXRpb25zIjpbWyJlcSIsIiRidWNrZXQiLCJteS1idWNrZXQiXSxbImVxIiwiJHgtYW16LWNyZWRlbnRpYWwiLCJBS0lBSUVVWDI3R1pGQUtFQ09ERS8yMDE4MDIwMi91cy1lYXN0LTEvczMvYXdzNF9yZXF1ZXN0Il0sWyJlcSIsIiR4LWFtei1kYXRlIiwiMjAxODAyMDJUMDAwMDAwWiJdLFsiZXEiLCIkeC1hbXotYWxnb3JpdGhtIiwiQVdTNC1ITUFDLVNBMjU2Il0sWyJzdGFydHMtd2l0aCIsIiRrZXkiLCIiXV19",
-               "x_amz_credential" => "AKIAIEUX27GZFAKECODE/20180202/us-east-1/s3/aws4_request",
+                 "eyJleHBpcmF0aW9uIjoiMjAxOC0wMi0wMlQxOTowNzozM1oiLCJjb25kaXRpb25zIjpbWyJlcSIsIiRidWNrZXQiLCJteS1idWNrZXQiXSxbImVxIiwiJHgtYW16LWNyZWRlbnRpYWwiLCJBS0lBSUVVWDI3R1pGQUtFQ09ERS8yMDE4MDIwMi91cy1lYXN0LTEvczMvYXdzNF9yZXF1ZXN0Il0sWyJlcSIsIiR4LWFtei1kYXRlIiwiMjAxODAyMDJUMDAwMDAwWiJdLFsiZXEiLCIkeC1hbXotYWxnb3JpdGhtIiwiQVdTNC1ITUFDLVNIQTI1NiJdLFsic3RhcnRzLXdpdGgiLCIka2V5IiwiIl1dfQ==",
                "x_amz_signature" =>
-                 "a1e164ea3f76137c72f1bf22c299848fc985b8c67a492d1d48a4ebb6ed1153b1"
+                 "25ec9ce795f9342cc6e55893fa7bb4c35e2b557ced23c304d1900293f8e7a61b"
              }
     end
   end
