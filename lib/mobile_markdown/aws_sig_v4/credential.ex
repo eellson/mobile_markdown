@@ -1,4 +1,10 @@
 defmodule MobileMarkdown.AWSSigV4.Credential do
+  @moduledoc """
+  General helper functions for generating credential values.
+
+  These should not be dependent on any particular AWS service.
+  """
+
   @aws_request "aws4_request"
   @key_prefix "AWS4"
 
@@ -12,7 +18,7 @@ defmodule MobileMarkdown.AWSSigV4.Credential do
     Enum.join([public_key, date, region, service, @aws_request], "/")
   end
 
-  def signature(string_to_sign, %DateTime{}=datetime, region, service, private_key) do
+  def signature(string_to_sign, %DateTime{} = datetime, region, service, private_key) do
     signature(string_to_sign, yyyymmdd(datetime), region, service, private_key)
   end
 

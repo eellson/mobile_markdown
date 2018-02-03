@@ -1,4 +1,8 @@
 defmodule MobileMarkdown.AWSSigV4.S3 do
+  @moduledoc """
+  Helper functions for generating Sig4 values for accessing the S3 service.
+  """
+
   def policy(start_time, expires_in, conditions) do
     start_time
     |> expires_at(expires_in)

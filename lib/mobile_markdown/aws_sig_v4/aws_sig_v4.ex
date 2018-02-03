@@ -1,6 +1,12 @@
 defmodule MobileMarkdown.AWSSigV4 do
   @moduledoc """
   The AWSSigV4 context.
+
+  Intended to provide the main public interface for retreiving necessary data
+  for AWS Signature V4 auth.
+
+  Currently this is however rather specific: it will return the necessary for
+  browser-based POST to S3, with a basic pre-canned policy.
   """
 
   @aws_algorithm "AWS4-HMAC-SA256"
@@ -8,12 +14,13 @@ defmodule MobileMarkdown.AWSSigV4 do
   alias MobileMarkdown.AWSSigV4.{Credential, S3}
 
   def get_credential(host, datetime, :s3, :simple, config) do
-    with credential_string <-
-           Credential.credential_string(datetime, config[:region], "s3", config[:public_key]),
-         conditions <- simple_conditions(config[:bucket], credential_string, datetime),
-         policy <- S3.policy(datetime, config[:ttl], conditions),
-         signature <-
-           Credential.signature(policy, datetime, config[:region], "s3", config[:private_key]) do
+    [region: region, public_key: public_key, bucket: bucket, ttl: ttl, private_key: private_key] =
+      config
+
+    with credential_string <- Credential.credential_string(datetime, region, "s3", public_key),
+         conditions <- simple_conditions(bucket, credential_string, datetime),
+         policy <- S3.policy(datetime, ttl, conditions),
+         signature <- Credential.signature(policy, datetime, region, "s3", private_key) do
       %Credential{
         host: host,
         policy: policy,
