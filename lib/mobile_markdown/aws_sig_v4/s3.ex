@@ -14,7 +14,7 @@ defmodule MobileMarkdown.AWSSigV4.S3 do
         public_key: public_key,
         private_key: private_key
       ) do
-    with credential_string <- credential_string(now, region, public_key),
+    with credential_string <- Credential.credential_string(now, region, @aws_service, public_key),
          policy <- simple_policy(credential_string, bucket, now, expires_in),
          signature <- signature(policy, now, region, private_key) do
       %Credential{
@@ -26,11 +26,6 @@ defmodule MobileMarkdown.AWSSigV4.S3 do
         x_amz_algorithm: @aws_algorithm
       }
     end
-  end
-
-  defp credential_string(datetime, region, public_key) do
-    [public_key, Date.to_iso8601(datetime, :basic), region, @aws_service, @aws_request]
-    |> Enum.join("/")
   end
 
   defp simple_policy(credential_string, bucket, start_time, expires_in) do
