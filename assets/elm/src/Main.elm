@@ -128,6 +128,6 @@ constructMarkdown : Result String String -> String
 constructMarkdown result =
   case result of
     Ok string ->
-      string
+      "![](" ++ string ++ ")"
     Err err ->
       ""
