@@ -9,7 +9,7 @@ import FileReader exposing (NativeFile)
 import Xml exposing (Value(..))
 import Xml.Encode exposing (null)
 import Xml.Decode exposing (decode)
-import Xml.Query exposing (tags)
+import Xml.Query exposing (tag, string)
 
 main : Program Flags Model Msg
 main =
@@ -63,31 +63,11 @@ update msg model =
         _ =
           Debug.log "result" result
 
-        url =
+        newState =
           result
-          |> decode
-          |> Result.toMaybe
-          |> Maybe.withDefault null
-          |> tags "Location"
-          |> List.head
-
-        _ =
-          Debug.log "url" url
-
-        toAppend =
-          case url of
-            Nothing ->
-              ""
-            Just value ->
-              case value of
-                (Tag _ _ (StrNode value)) ->
-                  value
-                _ -> ""
-
-        _ =
-          Debug.log "toAppend" toAppend
-
-        newState = model.textAreaContents ++ toAppend
+          |> getUploadUrl
+          |> constructMarkdown
+          |> (++) model.textAreaContents
       in
         {model | textAreaContents = newState} ! []
 
@@ -135,3 +115,19 @@ credentialsDecoder =
     (Json.Decode.at ["data", "x_amz_date"] Json.Decode.string)
     (Json.Decode.at ["data", "x_amz_signature"] Json.Decode.string)
     (Json.Decode.at ["data", "policy"] Json.Decode.string)
+
+getUploadUrl : String -> Result String String
+getUploadUrl xmlString =
+  xmlString
+  |> decode
+  |> Result.toMaybe
+  |> Maybe.withDefault null
+  |> tag "Location" Xml.Query.string
+
+constructMarkdown : Result String String -> String
+constructMarkdown result =
+  case result of
+    Ok string ->
+      string
+    Err err ->
+      ""
