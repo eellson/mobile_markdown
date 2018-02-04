@@ -15,4 +15,5 @@ editorView model =
           [ input [ type_ "file", on "change" (Json.map Files parseSelectedFiles) ] []
           , button [] [ text "Upload" ]
           ]
+        , textarea [ onInput TextEntered, value model.textAreaContents ] [ ]
       ]

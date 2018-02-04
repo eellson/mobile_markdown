@@ -6,6 +6,10 @@ import Html
 import Http exposing(stringPart, Request)
 import Json.Decode exposing (Decoder)
 import FileReader exposing (NativeFile)
+import Xml exposing (Value(..))
+import Xml.Encode exposing (null)
+import Xml.Decode exposing (decode)
+import Xml.Query exposing (tags)
 
 main : Program Flags Model Msg
 main =
@@ -58,8 +62,34 @@ update msg model =
       let
         _ =
           Debug.log "result" result
+
+        url =
+          result
+          |> decode
+          |> Result.toMaybe
+          |> Maybe.withDefault null
+          |> tags "Location"
+          |> List.head
+
+        _ =
+          Debug.log "url" url
+
+        toAppend =
+          case url of
+            Nothing ->
+              ""
+            Just value ->
+              case value of
+                (Tag _ _ (StrNode value)) ->
+                  value
+                _ -> ""
+
+        _ =
+          Debug.log "toAppend" toAppend
+
+        newState = model.textAreaContents ++ toAppend
       in
-        model ! []
+        {model | textAreaContents = newState} ! []
 
     UploadComplete (Err error) ->
       let
@@ -67,6 +97,9 @@ update msg model =
           Debug.log "error" error
       in
         model ! []
+
+    TextEntered newState ->
+      { model | textAreaContents = newState } ! []
 
 uploadRequest : Credentials -> NativeFile -> Flags -> Request String
 uploadRequest creds file flags =

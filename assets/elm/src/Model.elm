@@ -8,10 +8,12 @@ type Msg
   | Files (List NativeFile)
   | CredentialsResult (Result Http.Error Credentials)
   | UploadComplete (Result Http.Error String)
+  | TextEntered String
 
 type alias Model =
   { fileToUpload : Maybe NativeFile
   , flags : Flags
+  , textAreaContents : String
   }
 
 type alias Credentials =
@@ -30,4 +32,5 @@ initialModel : Flags -> Model
 initialModel flags =
   { fileToUpload = Nothing
   , flags = flags
+  , textAreaContents = ""
   }
