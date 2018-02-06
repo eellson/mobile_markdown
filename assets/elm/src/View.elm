@@ -11,9 +11,11 @@ import Json.Decode as Json
 editorView : Model -> Html Msg
 editorView model =
   div [ class "row" ]
-      [ Html.form [ onSubmit UploadAsset ]
-          [ input [ type_ "file", on "change" (Json.map Files parseSelectedFiles) ] []
-          , button [] [ text "Upload" ]
-          ]
-        , textarea [ onInput TextEntered, value model.textAreaContents ] [ ]
+      [ input [ type_ "file"
+              , on "change" (Json.map Files parseSelectedFiles)
+              ] []
+      , textarea [ onInput TextEntered
+                 , value model.textAreaContents
+                 , id "elm-textarea"
+                 ] [ ]
       ]

@@ -4,7 +4,7 @@ import FileReader exposing(NativeFile)
 import Http exposing(Request)
 
 type Msg
-  = UploadAsset
+  = UploadAsset Int
   | Files (List NativeFile)
   | CredentialsResult (Result Http.Error Credentials)
   | UploadComplete (Result Http.Error String)
@@ -14,6 +14,7 @@ type alias Model =
   { fileToUpload : Maybe NativeFile
   , flags : Flags
   , textAreaContents : String
+  , lastCursorPosition : Int
   }
 
 type alias Credentials =
@@ -33,4 +34,5 @@ initialModel flags =
   { fileToUpload = Nothing
   , flags = flags
   , textAreaContents = ""
+  , lastCursorPosition = 0
   }

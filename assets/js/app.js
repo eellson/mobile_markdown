@@ -23,5 +23,11 @@ import "phoenix_html"
 const elmDiv = document.querySelector("#elm-target");
 
 if (elmDiv) {
-  Elm.Main.embed(elmDiv, {upload_url: UPLOAD_URL});
+  var app = Elm.Main.embed(elmDiv, {upload_url: UPLOAD_URL});
+  app.ports.askPositionForLink.subscribe(function() {
+    var textarea = document.getElementById("elm-textarea");
+    var cursorPosition = textarea.selectionStart;
+    console.log(cursorPosition);
+    app.ports.receivePositionForLink.send(cursorPosition);
+  });
 }

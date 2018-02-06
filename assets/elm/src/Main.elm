@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Model exposing (..)
 import View
+import Ports
 import Html
 import Http exposing(stringPart, Request)
 import Json.Decode exposing (Decoder)
@@ -17,7 +18,7 @@ main =
   { init = initialState
   , update = update
   , view = View.editorView
-  , subscriptions = (\_ -> Sub.none)
+  , subscriptions = subscriptions
   }
 
 initialState : Flags -> ( Model, Cmd Msg )
@@ -27,16 +28,19 @@ initialState flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
-    UploadAsset ->
+    UploadAsset position ->
       let
         cmd =
           Http.get "/api/credentials" credentialsDecoder
           |> Http.send CredentialsResult
       in
-      model ! [ cmd ]
+        { model | lastCursorPosition = position } ! [ cmd ]
 
     Files nativeFiles ->
-      { model | fileToUpload = List.head nativeFiles } ! []
+      let
+        cmd = Ports.askPositionForLink ()
+      in
+        { model | fileToUpload = List.head nativeFiles } ! [ cmd ]
 
     CredentialsResult (Ok result) ->
       let
@@ -63,11 +67,20 @@ update msg model =
         _ =
           Debug.log "result" result
 
-        newState =
+        toPrepend =
+          model.textAreaContents
+          |> String.left model.lastCursorPosition
+
+        uploadString =
           result
           |> getUploadUrl
           |> constructMarkdown
-          |> (++) model.textAreaContents
+
+        toAppend =
+          model.textAreaContents
+          |> String.dropLeft model.lastCursorPosition
+
+        newState = String.concat [toPrepend, uploadString, toAppend]
       in
         {model | textAreaContents = newState} ! []
 
@@ -131,3 +144,7 @@ constructMarkdown result =
       "![](" ++ string ++ ")"
     Err err ->
       ""
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  Ports.receivePositionForLink UploadAsset
