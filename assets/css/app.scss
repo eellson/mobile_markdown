@@ -1,0 +1,11 @@
+/* This file is for your main application css. */
+@import "variables";
+
+html, body {
+  background: $black;
+}
+
+.markdown-editor {
+  width: 100%;
+  height: 100%;
+}
