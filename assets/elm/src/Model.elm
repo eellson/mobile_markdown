@@ -21,9 +21,9 @@ type alias Credentials =
   { x_amz_credential : String
   , x_amz_date : String
   , x_amz_signature : String
+  , x_amz_algorithm : String
   , policy : String
   }
-
 
 type alias Flags =
   { upload_url : String

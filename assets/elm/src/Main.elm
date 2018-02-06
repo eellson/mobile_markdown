@@ -111,7 +111,7 @@ multiPartBody : Credentials -> NativeFile -> Http.Body
 multiPartBody creds nf =
   Http.multipartBody
   [ stringPart "key" nf.name
-  , stringPart "x-amz-algorithm" "AWS4-HMAC-SHA256"
+  , stringPart "x-amz-algorithm" creds.x_amz_algorithm
   , stringPart "x-amz-credential" creds.x_amz_credential
   , stringPart "x-amz-date" creds.x_amz_date
   , stringPart "x-amz-signature" creds.x_amz_signature
@@ -123,10 +123,11 @@ multiPartBody creds nf =
 
 credentialsDecoder : Decoder Credentials
 credentialsDecoder =
-  Json.Decode.map4 Credentials
+  Json.Decode.map5 Credentials
     (Json.Decode.at ["data", "x_amz_credential"] Json.Decode.string)
     (Json.Decode.at ["data", "x_amz_date"] Json.Decode.string)
     (Json.Decode.at ["data", "x_amz_signature"] Json.Decode.string)
+    (Json.Decode.at ["data", "x_amz_algorithm"] Json.Decode.string)
     (Json.Decode.at ["data", "policy"] Json.Decode.string)
 
 getUploadUrl : String -> Result String String
