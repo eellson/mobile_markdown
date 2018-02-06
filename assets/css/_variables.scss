@@ -1,1 +1,15 @@
-$black: #333
+///// colours
+$black: #FFF;
+// $black: #333;
+// $white: #FFF;
+$white: #333;
+
+///// layout
+$site-max-width: 960px;
+$v-gutter: 5px;
+$h-gutter: 5px;
+
+///// typography
+$brand-font-fam: 'Roboto', Helvetica, sans-serif;
+$body-font-fam: Georgia, Times, "Times New Roman", serif;
+$body-font-size: 21px;

@@ -9,10 +9,11 @@
 
     <title>Hello MobileMarkdown!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+    <link href='//fonts.googleapis.com/css?family=Roboto:400,900' rel='stylesheet' type='text/css' />
   </head>
 
   <body>
-    <div class="container">
+    <div class="wrapper">
 
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
@@ -21,7 +22,7 @@
         <%= render @view_module, @view_template, assigns %>
       </main>
 
-    </div> <!-- /container -->
+    </div> <!-- /wrapper -->
     <script>
       var UPLOAD_URL = "<%= Application.get_env(:mobile_markdown, :s3_post_config)[:endpoint] %>"
     </script>

@@ -11,15 +11,19 @@ import Json.Decode as Json
 editorView : Model -> Html Msg
 editorView model =
     div [ class "row" ]
-        [ input
-            [ type_ "file"
-            , on "change" (Json.map Files parseSelectedFiles)
-            ]
-            []
-        , textarea
+        [ textarea
             [ onInput TextEntered
             , value model.textAreaContents
             , id "elm-textarea"
+            , class "markdown-editor"
             ]
             []
+        , label [ class "c12 markdown-asset-upload" ]
+            [ text "Insert image"
+            , input
+                [ type_ "file"
+                , on "change" (Json.map Files parseSelectedFiles)
+                ]
+                []
+            ]
         ]

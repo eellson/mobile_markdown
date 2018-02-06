@@ -1,11 +1,40 @@
 /* This file is for your main application css. */
 @import "variables";
+@import "grid";
 
 html, body {
   background: $black;
+  font-family: $body-font-fam;
+  font-size: $body-font-size;
 }
 
 .markdown-editor {
   width: 100%;
   height: 100%;
+  background: $black;
+  color: $white;
+  font-size: 0.8em;
+  min-height: 16em;
+}
+
+.markdown-asset-upload {
+  overflow: hidden;
+  position: relative;
+  color: $white;
+  border: 1px solid $white;
+}
+
+.markdown-asset-upload [type=file] {
+  cursor: inherit;
+  display: block;
+  font-size: 999px;
+  filter: alpha(opacity=0);
+  min-height: 100%;
+  min-width: 100%;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  text-align: right;
+  top: 0;
+
 }
