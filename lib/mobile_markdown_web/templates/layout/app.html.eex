@@ -12,8 +12,8 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
   </head>
 
-  <body class="flex-container-full-height">
-    <div class="wrapper flex-container-full-height">
+  <body>
+    <div class="flex-container-full-height wrapper">
       <%= render @view_module, @view_template, assigns %>
     </div> <!-- /wrapper -->
     <script>

@@ -17,8 +17,9 @@ body {
 }
 
 .wrapper {
-  width: $site-max-width;
-  margin: 0;
+  max-width: $site-max-width;
+  justify-content: stretch;
+  margin: 0 auto;
 }
 
 .markdown-editor {
