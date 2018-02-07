@@ -4,7 +4,7 @@
 
 html, body {
   background: $black;
-  font-family: $body-font-fam;
+  font-family: $mono-font-fam;
   font-size: $body-font-size;
 }
 
@@ -13,15 +13,23 @@ html, body {
   height: 100%;
   background: $black;
   color: $white;
-  font-size: 0.8em;
+  font-size: 1em;
   min-height: 16em;
+}
+
+.markdown-editor:focus {
+  outline-color: $bright-grey;
 }
 
 .markdown-asset-upload {
   overflow: hidden;
   position: relative;
   color: $white;
-  border: 1px solid $white;
+  border: 1px solid $mid-grey;
+}
+
+.markdown-asset-upload:hover {
+  border-color: $bright-grey;
 }
 
 .markdown-asset-upload [type=file] {

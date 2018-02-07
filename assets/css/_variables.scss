@@ -3,6 +3,8 @@ $black: #333;
 $white: #FFF;
 // $black: #FFF;
 // $white: #333;
+$mid-grey: #A9A9A9;
+$bright-grey: #EAEAEA;
 
 ///// layout
 $site-max-width: 960px;
@@ -11,5 +13,6 @@ $h-gutter: 5px;
 
 ///// typography
 $brand-font-fam: 'Roboto', Helvetica, sans-serif;
+$mono-font-fam: 'Roboto Mono', monospace;
 $body-font-fam: Georgia, Times, "Times New Roman", serif;
-$body-font-size: 21px;
+$body-font-size: 16px;
