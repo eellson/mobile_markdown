@@ -9,7 +9,7 @@
 
     <title>Hello MobileMarkdown!</title>
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
-    <link href='//fonts.googleapis.com/css?family=Roboto:400,900' rel='stylesheet' type='text/css' />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
   </head>
 
   <body>
