@@ -1,6 +1,6 @@
 /* This file is for your main application css. */
 @import "variables";
-@import "grid";
+@import "layout";
 
 html, body {
   background: $black;
@@ -8,9 +8,22 @@ html, body {
   font-size: $body-font-size;
 }
 
-.markdown-editor {
-  width: 100%;
+html {
   height: 100%;
+}
+
+body {
+  align-items: center;
+}
+
+.wrapper {
+  width: $site-max-width;
+  margin: 0;
+}
+
+.markdown-editor {
+  flex: 1 1 auto;
+  padding: $v-gutter $h-gutter;
   background: $black;
   color: $white;
   font-size: 1em;
@@ -18,10 +31,13 @@ html, body {
 }
 
 .markdown-editor:focus {
-  outline-color: $bright-grey;
+  outline: none !important;
+  border-color: $bright-grey;
 }
 
 .markdown-asset-upload {
+  flex: 0 0 auto;
+  padding: $v-gutter $h-gutter;
   overflow: hidden;
   position: relative;
   color: $white;

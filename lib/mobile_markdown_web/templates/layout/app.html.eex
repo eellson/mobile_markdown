@@ -12,16 +12,9 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
   </head>
 
-  <body>
-    <div class="wrapper">
-
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
-
-      <main role="main">
-        <%= render @view_module, @view_template, assigns %>
-      </main>
-
+  <body class="flex-container-full-height">
+    <div class="wrapper flex-container-full-height">
+      <%= render @view_module, @view_template, assigns %>
     </div> <!-- /wrapper -->
     <script>
       var UPLOAD_URL = "<%= Application.get_env(:mobile_markdown, :s3_post_config)[:endpoint] %>"

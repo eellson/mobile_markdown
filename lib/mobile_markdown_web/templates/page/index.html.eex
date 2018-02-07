@@ -1,5 +1,1 @@
-<div class="row">
-  <div class="c12">
-    <div id="elm-target"></div>
-  </div>
-</div>
+<div id="elm-target" class="flex-container-full-height"></div>

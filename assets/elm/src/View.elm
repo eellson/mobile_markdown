@@ -10,7 +10,7 @@ import Json.Decode as Json
 
 editorView : Model -> Html Msg
 editorView model =
-    div [ class "row" ]
+    div [ class "flex-container-full-height" ]
         [ textarea
             [ onInput TextEntered
             , value model.textAreaContents
