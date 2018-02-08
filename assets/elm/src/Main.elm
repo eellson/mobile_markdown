@@ -46,6 +46,13 @@ update msg model =
             in
                 { model | fileToUpload = List.head nativeFiles } ! [ cmd ]
 
+        DeferFiles nativeFiles ->
+            let
+                cmd =
+                    Ports.sendPostToServiceWorker { name = "wah" }
+            in
+                model ! [ cmd ]
+
         CredentialsResult (Ok result) ->
             let
                 cmd =

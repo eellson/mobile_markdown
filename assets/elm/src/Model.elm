@@ -7,6 +7,7 @@ import Http exposing (Request)
 type Msg
     = UploadAsset Int
     | Files (List NativeFile)
+    | DeferFiles (List NativeFile)
     | CredentialsResult (Result Http.Error Credentials)
     | UploadComplete (Result Http.Error String)
     | TextEntered String

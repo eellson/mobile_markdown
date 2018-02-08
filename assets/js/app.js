@@ -12,6 +12,7 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
+import "idb"
 
 // Import local files
 //
@@ -29,5 +30,25 @@ if (elmDiv) {
     var cursorPosition = textarea.selectionStart;
     console.log(cursorPosition);
     app.ports.receivePositionForLink.send(cursorPosition);
+  });
+
+  navigator.serviceWorker.register("js/sw.js").then(function(reg) {
+
+    app.ports.sendPostToServiceWorker.subscribe(function(payload) {
+      console.log("hey");
+      if ("sync" in reg) {
+        store.outbox("readwrite").then(function(outbox) {
+          return outbox.put(payload);
+        }).then(function(id) {
+          // TODO clean up form?
+          return reg.sync.register(id);
+        }).catch(function(err) {
+          console.error(err);
+          // TODO try again?
+        });
+      }
+    });
+  }).catch(function(err) {
+    console.log(err); // service worker failed to install
   });
 }
