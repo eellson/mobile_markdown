@@ -2,15 +2,16 @@ module Model exposing (..)
 
 import FileReader exposing (NativeFile)
 import Http exposing (Request)
+import Json.Encode exposing (Value)
 
 
 type Msg
-    = UploadAsset Int
-    | Files (List NativeFile)
+    = Files (List NativeFile)
     | DeferFiles (List NativeFile)
-    | CredentialsResult (Result Http.Error Credentials)
-    | UploadComplete (Result Http.Error String)
+    | UploadComplete String (Result Http.Error String)
     | TextEntered String
+    | InsertImageTag Json.Encode.Value
+    | TryUploadAsset Json.Encode.Value
 
 
 type alias Model =
@@ -32,6 +33,18 @@ type alias Credentials =
 
 type alias Flags =
     { upload_url : String
+    }
+
+
+type alias CursorHash =
+    { position : Int
+    , hash : String
+    }
+
+
+type alias NativeFileAndHash =
+    { file : NativeFile
+    , hash : String
     }
 
 

@@ -5,12 +5,16 @@ import View
 import Ports
 import Html
 import Http exposing (stringPart, Request)
+import Json.Encode as Encode exposing (encode)
 import Json.Decode exposing (Decoder)
+import Task exposing (..)
 import FileReader exposing (NativeFile)
 import Xml exposing (Value(..))
 import Xml.Encode exposing (null)
 import Xml.Decode exposing (decode)
 import Xml.Query exposing (tag, string)
+import MimeType
+import Regex exposing (regex, replace)
 
 
 main : Program Flags Model Msg
@@ -31,13 +35,66 @@ initialState flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UploadAsset position ->
+        InsertImageTag posHashValue ->
             let
-                cmd =
-                    Http.get "/api/credentials" credentialsDecoder
-                        |> Http.send CredentialsResult
+                positionAndHash =
+                    posHashValue
+                        |> Json.Decode.decodeValue cursorHashDecoder
             in
-                { model | lastCursorPosition = position } ! [ cmd ]
+                case positionAndHash of
+                    Ok values ->
+                        let
+                            toPrepend =
+                                model.textAreaContents
+                                    |> String.left values.position
+
+                            uploadString =
+                                values.hash
+                                    |> wrapUrl
+
+                            toAppend =
+                                model.textAreaContents
+                                    |> String.dropLeft values.position
+
+                            newState =
+                                String.concat
+                                    [ toPrepend
+                                    , uploadString
+                                    , toAppend
+                                    ]
+                        in
+                            { model | textAreaContents = newState } ! []
+
+                    _ ->
+                        model ! []
+
+        TryUploadAsset fileValue ->
+            let
+                nativeFileAndHash =
+                    fileValue
+                        |> Json.Decode.decodeValue nativeFileAndHashDecoder
+            in
+                case nativeFileAndHash of
+                    Ok fileAndHash ->
+                        let
+                            requests =
+                                Http.toTask (Http.get "/api/credentials" credentialsDecoder)
+                                    |> Task.andThen
+                                        (\result ->
+                                            (Http.toTask (uploadRequest result fileAndHash.file model.flags))
+                                        )
+
+                            cmd =
+                                Task.attempt (UploadComplete fileAndHash.hash) requests
+                        in
+                            model ! [ cmd ]
+
+                    Err err ->
+                        let
+                            _ =
+                                Debug.log "TryUploadAsset" err
+                        in
+                            model ! []
 
         Files nativeFiles ->
             let
@@ -49,54 +106,41 @@ update msg model =
         DeferFiles nativeFiles ->
             let
                 cmd =
-                    Ports.sendPostToServiceWorker { name = "wah" }
+                    nativeFiles
+                        |> List.head
+                        |> fileJson
+                        |> Ports.waitForUploadAtPosition
             in
                 model ! [ cmd ]
 
-        CredentialsResult (Ok result) ->
-            let
-                cmd =
-                    model.fileToUpload
-                        |> Maybe.map
-                            (\file ->
-                                uploadRequest result file model.flags
-                                    |> Http.send UploadComplete
-                            )
-                        |> Maybe.withDefault Cmd.none
-            in
-                model ! [ cmd ]
-
-        CredentialsResult (Err error) ->
-            let
-                _ =
-                    Debug.log "error" error
-            in
-                model ! []
-
-        UploadComplete (Ok result) ->
+        UploadComplete hash (Ok result) ->
             let
                 _ =
                     Debug.log "result" result
 
-                toPrepend =
-                    model.textAreaContents
-                        |> String.left model.lastCursorPosition
-
-                uploadString =
+                url =
                     result
                         |> getUploadUrl
-                        |> constructMarkdown
-
-                toAppend =
-                    model.textAreaContents
-                        |> String.dropLeft model.lastCursorPosition
-
-                newState =
-                    String.concat [ toPrepend, uploadString, toAppend ]
             in
-                { model | textAreaContents = newState } ! []
+                case url of
+                    Ok url ->
+                        let
+                            replace =
+                                Regex.replace Regex.All (regex hash) (\_ -> url)
 
-        UploadComplete (Err error) ->
+                            newState =
+                                replace model.textAreaContents
+                        in
+                            { model | textAreaContents = newState } ! []
+
+                    Err err ->
+                        let
+                            _ =
+                                Debug.log "error" err
+                        in
+                            model ! []
+
+        UploadComplete _ (Err error) ->
             let
                 _ =
                     Debug.log "error" error
@@ -136,12 +180,19 @@ multiPartBody creds nf =
 
 credentialsDecoder : Decoder Credentials
 credentialsDecoder =
-    Json.Decode.map5 Credentials
-        (Json.Decode.at [ "data", "x_amz_credential" ] Json.Decode.string)
-        (Json.Decode.at [ "data", "x_amz_date" ] Json.Decode.string)
-        (Json.Decode.at [ "data", "x_amz_signature" ] Json.Decode.string)
-        (Json.Decode.at [ "data", "x_amz_algorithm" ] Json.Decode.string)
-        (Json.Decode.at [ "data", "policy" ] Json.Decode.string)
+    let
+        _ =
+            Debug.log "creds"
+
+        decode =
+            Json.Decode.map5 Credentials
+                (Json.Decode.at [ "data", "x_amz_credential" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "x_amz_date" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "x_amz_signature" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "x_amz_algorithm" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "policy" ] Json.Decode.string)
+    in
+        decode
 
 
 getUploadUrl : String -> Result String String
@@ -157,12 +208,58 @@ constructMarkdown : Result String String -> String
 constructMarkdown result =
     case result of
         Ok string ->
-            "![](" ++ string ++ ")"
+            wrapUrl string
 
         Err err ->
             ""
 
 
+wrapUrl : String -> String
+wrapUrl string =
+    "![](" ++ string ++ ")"
+
+
+fileJson : Maybe NativeFile -> Encode.Value
+fileJson nativeFile =
+    case nativeFile of
+        Just file ->
+            file.blob
+
+        _ ->
+            Encode.null
+
+
+cursorHashDecoder : Decoder CursorHash
+cursorHashDecoder =
+    Json.Decode.map2 CursorHash
+        (Json.Decode.field "position" Json.Decode.int)
+        (Json.Decode.field "hash" Json.Decode.string)
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Ports.receivePositionForLink UploadAsset
+    Sub.batch
+        [ Ports.receiveCursorAndHash InsertImageTag
+        , Ports.performUpload TryUploadAsset
+        ]
+
+
+mtypeDecoder : Decoder (Maybe MimeType.MimeType)
+mtypeDecoder =
+    Json.Decode.map MimeType.parseMimeType (Json.Decode.field "type" Json.Decode.string)
+
+
+nativeFileDecoder : Decoder NativeFile
+nativeFileDecoder =
+    Json.Decode.map4 NativeFile
+        (Json.Decode.field "name" Json.Decode.string)
+        (Json.Decode.field "size" Json.Decode.int)
+        mtypeDecoder
+        Json.Decode.value
+
+
+nativeFileAndHashDecoder : Decoder NativeFileAndHash
+nativeFileAndHashDecoder =
+    Json.Decode.map2 NativeFileAndHash
+        (Json.Decode.field "file" nativeFileDecoder)
+        (Json.Decode.field "hash" Json.Decode.string)

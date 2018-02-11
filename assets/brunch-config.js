@@ -2,14 +2,13 @@ exports.config = {
   // See http://brunch.io/#documentation for docs.
   files: {
     javascripts: {
-      joinTo: "js/app.js"
 
       // To use a separate vendor.js bundle, specify two files path
       // http://brunch.io/docs/config#-files-
-      // joinTo: {
-      //   "js/app.js": /^js/,
-      //   "js/vendor.js": /^(?!js)/
-      // }
+      joinTo: {
+        "js/app.js": /^(js\/((app.js|socket.js|store.js))|static|elm|node_modules|vendor\/main.js)/,
+        "js/idb.js": /^(vendor\/idb.js|node_modules)/
+      }
       //
       // To change the order of concatenation of files, explicitly mention here
       // order: {
@@ -67,7 +66,6 @@ exports.config = {
   npm: {
     enabled: true,
     globals: {
-      "idb": "idb"
     }
   }
 };

@@ -12,7 +12,6 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
-import "idb"
 
 // Import local files
 //
@@ -25,30 +24,42 @@ const elmDiv = document.querySelector("#elm-target");
 
 if (elmDiv) {
   var app = Elm.Main.embed(elmDiv, {upload_url: UPLOAD_URL});
-  app.ports.askPositionForLink.subscribe(function() {
-    var textarea = document.getElementById("elm-textarea");
-    var cursorPosition = textarea.selectionStart;
-    console.log(cursorPosition);
-    app.ports.receivePositionForLink.send(cursorPosition);
-  });
 
   navigator.serviceWorker.register("js/sw.js").then(function(reg) {
 
-    app.ports.sendPostToServiceWorker.subscribe(function(payload) {
-      console.log("hey");
-      if ("sync" in reg) {
-        store.outbox("readwrite").then(function(outbox) {
-          return outbox.put(payload);
-        }).then(function(id) {
-          // TODO clean up form?
-          return reg.sync.register(id);
-        }).catch(function(err) {
-          console.error(err);
-          // TODO try again?
-        });
-      }
+    app.ports.waitForUploadAtPosition.subscribe(function(payload) {
+      console.log(payload);
+
+      var textarea = document.getElementById("elm-textarea");
+      var cursorPosition = textarea.selectionStart;
+      var hash = "TESTHSH";
+
+      app.ports.receiveCursorAndHash.send(
+        {"position": cursorPosition, "hash": hash});
+
+      store.outbox("readwrite").then(function(outbox) {
+        var row = {"file": payload, "hash": hash}
+        return outbox.put(row);
+      }).then(function(id) {
+        // TODO clean up form?
+        console.log(id);
+        var sync = reg.sync.register(id);
+        console.log("post sync?");
+        return sync;
+      }).catch(function(err) {
+        console.error(err)
+        // TODO try again?
+      });
+    });
+
+    navigator.serviceWorker.addEventListener("message", function(event) {
+      console.log("client message");
+      console.log(event);
+      app.ports.performUpload.send(event.data);
     });
   }).catch(function(err) {
     console.log(err); // service worker failed to install
   });
 }
+
+console.log(store);

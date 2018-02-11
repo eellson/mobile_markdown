@@ -15,4 +15,4 @@ var store = {
       return db.transaction("outbox", mode).objectStore("outbox");
     })
   }
-}
+};
