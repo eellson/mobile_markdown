@@ -36,13 +36,8 @@ body {
   border-color: $bright-grey;
 }
 
-.editor-controls {
-  flex-direction: row;
-  flex: 0 0 auto;
-}
-
 .markdown-asset-upload {
-  flex: 1;
+  flex: 0 0 auto;
   padding: $v-gutter $h-gutter;
   overflow: hidden;
   position: relative;

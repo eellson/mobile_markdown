@@ -41,69 +41,17 @@ update msg model =
                     posHashValue
                         |> Json.Decode.decodeValue cursorHashDecoder
             in
-                case positionAndHash of
-                    Ok values ->
-                        let
-                            toPrepend =
-                                model.textAreaContents
-                                    |> String.left values.position
+                (insertImageTag model positionAndHash) ! []
 
-                            uploadString =
-                                values.hash
-                                    |> wrapUrl
-
-                            toAppend =
-                                model.textAreaContents
-                                    |> String.dropLeft values.position
-
-                            newState =
-                                String.concat
-                                    [ toPrepend
-                                    , uploadString
-                                    , toAppend
-                                    ]
-                        in
-                            { model | textAreaContents = newState } ! []
-
-                    _ ->
-                        model ! []
-
-        TryUploadAsset fileValue ->
+        UploadAsset fileValue ->
             let
-                nativeFileAndHash =
+                fileAndHash =
                     fileValue
                         |> Json.Decode.decodeValue nativeFileAndHashDecoder
             in
-                case nativeFileAndHash of
-                    Ok fileAndHash ->
-                        let
-                            requests =
-                                Http.toTask (Http.get "/api/credentials" credentialsDecoder)
-                                    |> Task.andThen
-                                        (\result ->
-                                            (Http.toTask (uploadRequest result fileAndHash.file model.flags))
-                                        )
-
-                            cmd =
-                                Task.attempt (UploadComplete fileAndHash.hash) requests
-                        in
-                            model ! [ cmd ]
-
-                    Err err ->
-                        let
-                            _ =
-                                Debug.log "TryUploadAsset" err
-                        in
-                            model ! []
+                model ! [ credentialsAndUpload model fileAndHash ]
 
         Files nativeFiles ->
-            let
-                cmd =
-                    Ports.askPositionForLink ()
-            in
-                { model | fileToUpload = List.head nativeFiles } ! [ cmd ]
-
-        DeferFiles nativeFiles ->
             let
                 cmd =
                     nativeFiles
@@ -119,26 +67,9 @@ update msg model =
                     Debug.log "result" result
 
                 url =
-                    result
-                        |> getUploadUrl
+                    getUploadUrl result
             in
-                case url of
-                    Ok url ->
-                        let
-                            replace =
-                                Regex.replace Regex.All (regex hash) (\_ -> url)
-
-                            newState =
-                                replace model.textAreaContents
-                        in
-                            { model | textAreaContents = newState } ! []
-
-                    Err err ->
-                        let
-                            _ =
-                                Debug.log "error" err
-                        in
-                            model ! []
+                (updateImageTag model hash url) ! []
 
         UploadComplete _ (Err error) ->
             let
@@ -178,23 +109,6 @@ multiPartBody creds nf =
         ]
 
 
-credentialsDecoder : Decoder Credentials
-credentialsDecoder =
-    let
-        _ =
-            Debug.log "creds"
-
-        decode =
-            Json.Decode.map5 Credentials
-                (Json.Decode.at [ "data", "x_amz_credential" ] Json.Decode.string)
-                (Json.Decode.at [ "data", "x_amz_date" ] Json.Decode.string)
-                (Json.Decode.at [ "data", "x_amz_signature" ] Json.Decode.string)
-                (Json.Decode.at [ "data", "x_amz_algorithm" ] Json.Decode.string)
-                (Json.Decode.at [ "data", "policy" ] Json.Decode.string)
-    in
-        decode
-
-
 getUploadUrl : String -> Result String String
 getUploadUrl xmlString =
     xmlString
@@ -202,16 +116,6 @@ getUploadUrl xmlString =
         |> Result.toMaybe
         |> Maybe.withDefault null
         |> tag "Location" Xml.Query.string
-
-
-constructMarkdown : Result String String -> String
-constructMarkdown result =
-    case result of
-        Ok string ->
-            wrapUrl string
-
-        Err err ->
-            ""
 
 
 wrapUrl : String -> String
@@ -229,19 +133,28 @@ fileJson nativeFile =
             Encode.null
 
 
+credentialsDecoder : Decoder Credentials
+credentialsDecoder =
+    let
+        _ =
+            Debug.log "creds"
+
+        decode =
+            Json.Decode.map5 Credentials
+                (Json.Decode.at [ "data", "x_amz_credential" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "x_amz_date" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "x_amz_signature" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "x_amz_algorithm" ] Json.Decode.string)
+                (Json.Decode.at [ "data", "policy" ] Json.Decode.string)
+    in
+        decode
+
+
 cursorHashDecoder : Decoder CursorHash
 cursorHashDecoder =
     Json.Decode.map2 CursorHash
         (Json.Decode.field "position" Json.Decode.int)
         (Json.Decode.field "hash" Json.Decode.string)
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.batch
-        [ Ports.receiveCursorAndHash InsertImageTag
-        , Ports.performUpload TryUploadAsset
-        ]
 
 
 mtypeDecoder : Decoder (Maybe MimeType.MimeType)
@@ -263,3 +176,88 @@ nativeFileAndHashDecoder =
     Json.Decode.map2 NativeFileAndHash
         (Json.Decode.field "file" nativeFileDecoder)
         (Json.Decode.field "hash" Json.Decode.string)
+
+
+insertImageTag : Model -> Result String CursorHash -> Model
+insertImageTag model positionAndHash =
+    case positionAndHash of
+        Ok values ->
+            let
+                toPrepend =
+                    String.left values.position model.textAreaContents
+
+                uploadString =
+                    wrapUrl values.hash
+
+                toAppend =
+                    String.dropLeft values.position model.textAreaContents
+
+                newState =
+                    String.concat [ toPrepend, uploadString, toAppend ]
+            in
+                { model | textAreaContents = newState }
+
+        Err error ->
+            let
+                _ =
+                    Debug.log "error" error
+            in
+                model
+
+
+credentialsAndUpload : Model -> Result String NativeFileAndHash -> Cmd Msg
+credentialsAndUpload model fileAndHash =
+    case fileAndHash of
+        Ok fileAndHash ->
+            let
+                creds =
+                    Http.get "/api/credentials" credentialsDecoder
+
+                upload =
+                    \creds_result ->
+                        uploadRequest creds_result fileAndHash.file model.flags
+
+                requests =
+                    Http.toTask creds
+                        |> Task.andThen (\result -> Http.toTask (upload result))
+
+                cmd =
+                    Task.attempt (UploadComplete fileAndHash.hash) requests
+            in
+                cmd
+
+        Err error ->
+            let
+                _ =
+                    Debug.log "error" error
+            in
+                Cmd.none
+
+
+updateImageTag : Model -> String -> Result String String -> Model
+updateImageTag model hash url =
+    case url of
+        Ok url ->
+            let
+                replace =
+                    Regex.replace Regex.All (regex hash) (\_ -> url)
+
+                newState =
+                    replace model.textAreaContents
+            in
+                { model | textAreaContents = newState }
+
+        Err error ->
+            let
+                _ =
+                    Debug.log "error" error
+            in
+                model
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ Ports.receiveCursorAndHash InsertImageTag
+        , Ports.performUpload UploadAsset
+        ]

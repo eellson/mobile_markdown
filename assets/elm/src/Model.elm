@@ -6,12 +6,11 @@ import Json.Encode exposing (Value)
 
 
 type Msg
-    = Files (List NativeFile)
-    | DeferFiles (List NativeFile)
+    = UploadAsset Json.Encode.Value
+    | Files (List NativeFile)
     | UploadComplete String (Result Http.Error String)
     | TextEntered String
     | InsertImageTag Json.Encode.Value
-    | TryUploadAsset Json.Encode.Value
 
 
 type alias Model =

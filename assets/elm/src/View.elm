@@ -18,22 +18,12 @@ editorView model =
             , class "markdown-editor"
             ]
             []
-        , div [ class "editor-controls" ]
-            [ label [ class "markdown-asset-upload" ]
-                [ text "Insert image"
-                , input
-                    [ type_ "file"
-                    , on "change" (Json.map Files parseSelectedFiles)
-                    ]
-                    []
+        , label [ class "markdown-asset-upload" ]
+            [ text "Insert image"
+            , input
+                [ type_ "file"
+                , on "change" (Json.map Files parseSelectedFiles)
                 ]
-            , label [ class "markdown-asset-upload" ]
-                [ text "Defer insert image"
-                , input
-                    [ type_ "file"
-                    , on "change" (Json.map DeferFiles parseSelectedFiles)
-                    ]
-                    []
-                ]
+                []
             ]
         ]
