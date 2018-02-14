@@ -123,7 +123,12 @@ getUploadUrl xmlString =
 
 wrapUrl : Int -> String
 wrapUrl int =
-    "![](" ++ toString int ++ ")"
+    "![](" ++ tempIdentifier int ++ ")"
+
+
+tempIdentifier : Int -> String
+tempIdentifier int =
+    "MMTMPID" ++ toString int
 
 
 fileJson : Maybe NativeFile -> Encode.Value
@@ -243,7 +248,7 @@ updateImageTag model id url =
         Ok url ->
             let
                 replace =
-                    Regex.replace Regex.All (regex (toString id)) (\_ -> url)
+                    Regex.replace Regex.All (regex (tempIdentifier id)) (\_ -> url)
 
                 newState =
                     replace model.textAreaContents
