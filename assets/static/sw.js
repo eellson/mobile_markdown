@@ -24,8 +24,7 @@ function uploadSuccessful(postId) {
     if (upload.status == "succeeded") {
       return Promise.resolve();
     } else {
-      clients.matchAll({includeUncontrolled: true, type: 'window'}
-      ).then(function(clients) {
+      clients.matchAll().then(function(clients) {
         console.log(clients);
         // new Promise(function(resolve, reject) {
         channel = new MessageChannel();
