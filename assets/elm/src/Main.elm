@@ -35,21 +35,21 @@ initialState flags =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        InsertImageTag posHashValue ->
+        InsertImageTag posIdValue ->
             let
-                positionAndHash =
-                    posHashValue
-                        |> Json.Decode.decodeValue cursorHashDecoder
+                positionAndId =
+                    posIdValue
+                        |> Json.Decode.decodeValue cursorIdDecoder
             in
-                (insertImageTag model positionAndHash) ! []
+                (insertImageTag model positionAndId) ! []
 
         UploadAsset fileValue ->
             let
-                fileAndHash =
+                fileAndId =
                     fileValue
-                        |> Json.Decode.decodeValue nativeFileAndHashDecoder
+                        |> Json.Decode.decodeValue nativeFileAndIdDecoder
             in
-                model ! [ credentialsAndUpload model fileAndHash ]
+                model ! [ credentialsAndUpload model fileAndId ]
 
         Files nativeFiles ->
             let
@@ -61,15 +61,18 @@ update msg model =
             in
                 model ! [ cmd ]
 
-        UploadComplete hash (Ok result) ->
+        UploadComplete id (Ok result) ->
             let
                 _ =
                     Debug.log "result" result
 
                 url =
                     getUploadUrl result
+
+                cmd =
+                    Ports.uploadSuccessful id
             in
-                (updateImageTag model hash url) ! []
+                (updateImageTag model id url) ! [ cmd ]
 
         UploadComplete _ (Err error) ->
             let
@@ -118,9 +121,9 @@ getUploadUrl xmlString =
         |> tag "Location" Xml.Query.string
 
 
-wrapUrl : String -> String
-wrapUrl string =
-    "![](" ++ string ++ ")"
+wrapUrl : Int -> String
+wrapUrl int =
+    "![](" ++ toString int ++ ")"
 
 
 fileJson : Maybe NativeFile -> Encode.Value
@@ -150,11 +153,11 @@ credentialsDecoder =
         decode
 
 
-cursorHashDecoder : Decoder CursorHash
-cursorHashDecoder =
-    Json.Decode.map2 CursorHash
+cursorIdDecoder : Decoder CursorId
+cursorIdDecoder =
+    Json.Decode.map2 CursorId
         (Json.Decode.field "position" Json.Decode.int)
-        (Json.Decode.field "hash" Json.Decode.string)
+        (Json.Decode.field "id" Json.Decode.int)
 
 
 mtypeDecoder : Decoder (Maybe MimeType.MimeType)
@@ -171,23 +174,23 @@ nativeFileDecoder =
         Json.Decode.value
 
 
-nativeFileAndHashDecoder : Decoder NativeFileAndHash
-nativeFileAndHashDecoder =
-    Json.Decode.map2 NativeFileAndHash
+nativeFileAndIdDecoder : Decoder NativeFileAndId
+nativeFileAndIdDecoder =
+    Json.Decode.map2 NativeFileAndId
         (Json.Decode.field "file" nativeFileDecoder)
-        (Json.Decode.field "hash" Json.Decode.string)
+        (Json.Decode.field "id" Json.Decode.int)
 
 
-insertImageTag : Model -> Result String CursorHash -> Model
-insertImageTag model positionAndHash =
-    case positionAndHash of
+insertImageTag : Model -> Result String CursorId -> Model
+insertImageTag model positionAndId =
+    case positionAndId of
         Ok values ->
             let
                 toPrepend =
                     String.left values.position model.textAreaContents
 
                 uploadString =
-                    wrapUrl values.hash
+                    wrapUrl values.id
 
                 toAppend =
                     String.dropLeft values.position model.textAreaContents
@@ -205,24 +208,24 @@ insertImageTag model positionAndHash =
                 model
 
 
-credentialsAndUpload : Model -> Result String NativeFileAndHash -> Cmd Msg
-credentialsAndUpload model fileAndHash =
-    case fileAndHash of
-        Ok fileAndHash ->
+credentialsAndUpload : Model -> Result String NativeFileAndId -> Cmd Msg
+credentialsAndUpload model fileAndId =
+    case fileAndId of
+        Ok fileAndId ->
             let
                 creds =
                     Http.get "/api/credentials" credentialsDecoder
 
                 upload =
                     \creds_result ->
-                        uploadRequest creds_result fileAndHash.file model.flags
+                        uploadRequest creds_result fileAndId.file model.flags
 
                 requests =
                     Http.toTask creds
                         |> Task.andThen (\result -> Http.toTask (upload result))
 
                 cmd =
-                    Task.attempt (UploadComplete fileAndHash.hash) requests
+                    Task.attempt (UploadComplete fileAndId.id) requests
             in
                 cmd
 
@@ -234,13 +237,13 @@ credentialsAndUpload model fileAndHash =
                 Cmd.none
 
 
-updateImageTag : Model -> String -> Result String String -> Model
-updateImageTag model hash url =
+updateImageTag : Model -> Int -> Result String String -> Model
+updateImageTag model id url =
     case url of
         Ok url ->
             let
                 replace =
-                    Regex.replace Regex.All (regex hash) (\_ -> url)
+                    Regex.replace Regex.All (regex (toString id)) (\_ -> url)
 
                 newState =
                     replace model.textAreaContents
@@ -258,6 +261,6 @@ updateImageTag model hash url =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Ports.receiveCursorAndHash InsertImageTag
+        [ Ports.receiveCursorAndId InsertImageTag
         , Ports.performUpload UploadAsset
         ]

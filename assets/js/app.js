@@ -32,23 +32,28 @@ if (elmDiv) {
 
       var textarea = document.getElementById("elm-textarea");
       var cursorPosition = textarea.selectionStart;
-      var hash = "TESTHSH";
-
-      app.ports.receiveCursorAndHash.send(
-        {"position": cursorPosition, "hash": hash});
 
       store.outbox("readwrite").then(function(outbox) {
-        var row = {"file": payload, "hash": hash}
+        var row = {"file": payload, "status": "pending"}
         return outbox.put(row);
       }).then(function(id) {
+        app.ports.receiveCursorAndId.send(
+          {"position": cursorPosition, "id": id});
+
         // TODO clean up form?
         console.log(id);
-        var sync = reg.sync.register(id);
-        console.log("post sync?");
-        return sync;
+        return reg.sync.register(id);
       }).catch(function(err) {
         console.error(err)
         // TODO try again?
+      });
+    });
+
+    app.ports.uploadSuccessful.subscribe(function(id) {
+      store.outbox("readwrite").then(function(outbox) {
+        var row = {"status": "succeeded", "id": parseInt(id)}
+        console.log(row);
+        return outbox.put(row);
       });
     });
 

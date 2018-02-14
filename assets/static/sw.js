@@ -17,7 +17,7 @@ self.addEventListener("sync", function(event) {
 });
 
 function uploadSuccessful(postId) {
-  var uploadPromise = store.outbox("readonly"
+  return store.outbox("readonly"
   ).then(function(outbox) {
     return outbox.get(parseInt(postId));
   }).then(function(upload) {
@@ -25,18 +25,7 @@ function uploadSuccessful(postId) {
       return Promise.resolve();
     } else {
       clients.matchAll().then(function(clients) {
-        console.log(clients);
-        // new Promise(function(resolve, reject) {
         channel = new MessageChannel();
-        //   channel.port1.onmessage = function(event) {
-        //     if (event.data.error) {
-        //       // console.error(event.data.error);
-        //       reject(event.data.error);
-        //     } else {
-        //       // console.log(event.data);
-        //       resolve(event.data);
-        //     }
-        //   };
         clients.forEach(function(client) {
           client.postMessage(upload, [channel.port2]);
         });

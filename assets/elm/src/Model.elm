@@ -8,7 +8,7 @@ import Json.Encode exposing (Value)
 type Msg
     = UploadAsset Json.Encode.Value
     | Files (List NativeFile)
-    | UploadComplete String (Result Http.Error String)
+    | UploadComplete Int (Result Http.Error String)
     | TextEntered String
     | InsertImageTag Json.Encode.Value
 
@@ -35,15 +35,15 @@ type alias Flags =
     }
 
 
-type alias CursorHash =
+type alias CursorId =
     { position : Int
-    , hash : String
+    , id : Int
     }
 
 
-type alias NativeFileAndHash =
+type alias NativeFileAndId =
     { file : NativeFile
-    , hash : String
+    , id : Int
     }
 
 
