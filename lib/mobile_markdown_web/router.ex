@@ -23,6 +23,7 @@ defmodule MobileMarkdownWeb.Router do
   scope "/", MobileMarkdownWeb do
     pipe_through :browser # Use the default browser stack
 
+    get "/", Redirect, to: "/editor"
     get "/editor", EditorController, :index
   end
 
