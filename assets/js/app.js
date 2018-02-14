@@ -25,7 +25,7 @@ const elmDiv = document.querySelector("#elm-target");
 if (elmDiv) {
   var app = Elm.Main.embed(elmDiv, {upload_url: UPLOAD_URL});
 
-  navigator.serviceWorker.register("js/sw.js").then(function(reg) {
+  navigator.serviceWorker.register("/sw.js", {"scope": "/editor"}).then(function(reg) {
 
     app.ports.waitForUploadAtPosition.subscribe(function(payload) {
       console.log(payload);
