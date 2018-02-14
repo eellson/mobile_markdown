@@ -1,4 +1,4 @@
-defmodule MobileMarkdownWeb.PageController do
+defmodule MobileMarkdownWeb.EditorController do
   use MobileMarkdownWeb, :controller
 
   def index(conn, _params) do
