@@ -69,6 +69,8 @@ attempt, and upload success;
 The Elm app is responsible for rendering the editor, keeping track of and
 updating editor state, fetching credentials and attempting uploads.
 
+A writeup of a similar but simplified approach to this can be seen [on my blog](https://notes.eellson.com/2018/02/26/offline-post-requests-with-elm-and-service-worker/).
+
 * When a user selects a file for the file input, we parse this value to JSON,
 then send a message through the `waitForUploadAtPosition` port, asking javascript
 to get the current position of the cursor.
